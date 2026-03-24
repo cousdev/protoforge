@@ -1,0 +1,1 @@
+void forge(void);
