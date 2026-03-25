@@ -87,4 +87,19 @@ char* get_random_line(const char *PATH) {
     }
 
     return chosen;
-} 
+}
+
+void create_new_file(const char *PATH, const char** LINES, int count) {
+    FILE *f = fopen(PATH, "w");
+    if (!f) {
+        perror("Failed to create a new file.");
+        exit(1);
+    }
+
+    for (int i = 0; i < count; i++) {
+        fprintf(f, "%s\n", LINES[i]);
+    }
+
+    fclose(f);
+}
+

@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <file_manager.h>
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
 
 void list_forge_files(char **files, int count) {
     for (int i = 0; i < count; i++) {
@@ -33,6 +36,9 @@ void forge(void) {
 
     printf("\n--- Mode: %s ---\n", files[selected_type]);
 
+    char type[256];
+    strncpy(type, files[selected_type], sizeof(type));
+
     char forge_file[1024];
     snprintf(forge_file, sizeof(forge_file), "%s/%s", forge_path, files[selected_type]);
     for (int i = 0; i < count; i++) {
@@ -41,5 +47,41 @@ void forge(void) {
     free(files);
 
     char *line = get_random_line(forge_file);
-    printf("Prompt: %s", line);
+    char prompt[512];
+    char type_line[512];
+    snprintf(prompt, sizeof(prompt), "PROMPT: %s", line);
+    snprintf(type_line, sizeof(type_line), "TYPE: %s", type);
+    free(line);
+
+    const char *lines[] = {
+        "==============",
+        prompt,
+        type_line,
+        "==============",
+        "",
+        ""
+    };
+
+    // Get filepath for file (create a new one with the unix timestamp)
+    // Check if the editor variable is set.
+    // If it isn't then default to nano and open it.
+    char archive_path[1024];
+    time_t unix_datetime;
+    unix_datetime = time(NULL);
+    snprintf(archive_path, sizeof(archive_path), "%s/archive/%ld", home, unix_datetime);
+
+    // Create a new file and write the lines
+    create_new_file(archive_path, lines, 6);
+    
+    // Open the editor
+    char* EDITOR = getenv("EDITOR");
+    if (EDITOR == NULL) {
+        printf("Warning: You have not set an EDITOR environment variable. Using the default 'nano'.");
+        EDITOR = "nano";
+    }
+
+    char command[512];
+    snprintf(command, sizeof(command), "%s %s", EDITOR, archive_path);
+    system(command);
+
 }
