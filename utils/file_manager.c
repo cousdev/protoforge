@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <time.h>
+#include <cJSON.h>
 
 void get_wordforge_home(char *buf, size_t size) {
     char *home = getenv("HOME");
@@ -103,3 +104,60 @@ void create_new_file(const char *PATH, const char** LINES, int count) {
     fclose(f);
 }
 
+cJSON* read_config(void) {
+    char home[1024];
+    get_wordforge_home(home, sizeof(home));
+    char config_path[1024];
+    snprintf(config_path, sizeof(config_path), "%s/config.json", home);
+
+    FILE *f = fopen(config_path, "r");
+    if (f == NULL) {
+        perror("Failed to open the config.json\n");
+        exit(1);
+    }
+
+    // Get the file size
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    rewind(f);
+
+    // Allocate enough for the file.
+    char *buffer = malloc(len + 1);
+    if (!buffer) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        exit(1);
+    }
+
+    fread(buffer, 1, len, f);
+    buffer[len] = '\0';
+    fclose(f);
+
+    cJSON *json = cJSON_Parse(buffer);
+    free(buffer);
+
+    if (!json) {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr) fprintf(stderr, "cJSON error: %s\n", error_ptr);
+        exit(1);
+    }
+
+    return json;
+} 
+
+void write_config(const char *text) {
+    char home[1024];
+    get_wordforge_home(home, sizeof(home));
+    char config_path[1024];
+    snprintf(config_path, sizeof(config_path), "%s/config.json", home);
+
+    FILE *f = fopen(config_path, "w");
+    if (f == NULL) {
+        perror("Failed to open the config.json\n");
+        exit(1);
+    }
+
+    fputs(text, f);
+    fclose(f);
+
+    return;
+}

@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <refine.h>
+#include <data_manager.h>
 
 // Routes subcommands to the appropriate files.
 int main(int argc, char *argv[]) {

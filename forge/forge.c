@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
+#include <data_manager.h>
 
 void list_forge_files(char **files, int count) {
     for (int i = 0; i < count; i++) {
@@ -74,13 +75,24 @@ void forge(void) {
     // Open the editor
     char* EDITOR = getenv("EDITOR");
     if (EDITOR == NULL) {
-        printf("Warning: You have not set an EDITOR environment variable. Using the default 'nano'.");
+        printf("Warning: You have not set an EDITOR environment variable. Using the default 'nano'.\n");
         EDITOR = "nano";
     }
 
     char command[512];
     snprintf(command, sizeof(command), "%s %s", EDITOR, archive_path);
     system(command);
+    printf("Running add_forge_count()\n");
+    add_forge_count();
+    printf("Finished add_forge_count()\n");
+    int streak = update_streak();
+    int total_xp = add_xp(20);
+
+    printf("Forge complete!\n\n");
+    printf("+20 XP (forge)\n\n");
+    printf("Total gained: 20 XP\n");
+    printf("Current streak: %d\n", streak);
+    printf("Total XP: %d\n", total_xp);
 
     return;
 }
