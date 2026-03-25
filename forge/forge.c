@@ -20,7 +20,7 @@ void forge(void) {
     snprintf(forge_path, sizeof(forge_path), "%s/forge", home);
 
     int count = 0;
-    char **files = get_forge_files(forge_path, &count);
+    char **files = get_files_from_folder(forge_path, &count);
     list_forge_files(files, count);
 
     int selected_type;
@@ -33,8 +33,6 @@ void forge(void) {
         fprintf(stderr, "Invalid selection, please pick a number between 1 and %d.\n", count);
         exit(1);
     }
-
-    printf("\n--- Mode: %s ---\n", files[selected_type]);
 
     char type[256];
     strncpy(type, files[selected_type], sizeof(type));
@@ -84,4 +82,5 @@ void forge(void) {
     snprintf(command, sizeof(command), "%s %s", EDITOR, archive_path);
     system(command);
 
+    return;
 }

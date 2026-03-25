@@ -3,6 +3,7 @@
 #include <strings.h>
 #include <time.h>
 #include <stdlib.h>
+#include <refine.h>
 
 // Routes subcommands to the appropriate files.
 int main(int argc, char *argv[]) {
@@ -21,7 +22,11 @@ int main(int argc, char *argv[]) {
     srand(time(NULL));
     if (strcasecmp(argv[1], "forge") == 0) {
         forge();
+    } else if (strcasecmp(argv[1], "refine") == 0)
+    {
+        refine();
     }
+    
 
     return 0;
 }

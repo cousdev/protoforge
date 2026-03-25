@@ -16,10 +16,10 @@ void get_wordforge_home(char *buf, size_t size) {
     return;
 }
 
-char** get_forge_files(const char *PATH, int *count) {
+char** get_files_from_folder(const char *PATH, int *count) {
     DIR *d = opendir(PATH);
     if (!d) {
-        perror("Failed to open the forge directory.");
+        perror("Failed to open the directory.");
         exit(1);
     }
 
@@ -36,7 +36,7 @@ char** get_forge_files(const char *PATH, int *count) {
     // Allocate an array of n string pointers
     char **files = malloc(n * sizeof(char *));
     if (!files) {
-        fprintf(stderr, "Failed to allocate memory to get forge files.\n");
+        fprintf(stderr, "Failed to allocate memory to get files.\n");
         exit(1);
     }
 
