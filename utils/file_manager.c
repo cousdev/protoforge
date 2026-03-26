@@ -104,12 +104,7 @@ void create_new_file(const char *PATH, const char** LINES, int count) {
     fclose(f);
 }
 
-cJSON* read_config(void) {
-    char home[1024];
-    get_wordforge_home(home, sizeof(home));
-    char config_path[1024];
-    snprintf(config_path, sizeof(config_path), "%s/config.json", home);
-
+cJSON* read_json(const char *config_path) {
     FILE *f = fopen(config_path, "r");
     if (f == NULL) {
         perror("Failed to open the config.json\n");
@@ -142,7 +137,17 @@ cJSON* read_config(void) {
     }
 
     return json;
-} 
+}
+
+cJSON* read_config(void) {
+    char home[1024];
+    get_wordforge_home(home, sizeof(home));
+    char config_path[1024];
+    snprintf(config_path, sizeof(config_path), "%s/config.json", home);
+    cJSON *json = read_json(config_path);
+
+    return json;
+}
 
 void write_config(const char *text) {
     char home[1024];

@@ -7,3 +7,4 @@ char* get_random_line(const char *PATH);
 void create_new_file(const char *PATH, const char** LINES, int count);
 cJSON* read_config(void);
 void write_config(const char *text);
+cJSON* read_json(const char *config_path);

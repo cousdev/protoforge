@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <data_manager.h>
+#include <prompt_manager.h>
 
 void list_forge_files(char **files, int count) {
     for (int i = 0; i < count; i++) {
@@ -45,17 +46,24 @@ void forge(void) {
     }
     free(files);
 
-    char *line = get_random_line(forge_file);
+    char line[512];
+    int difficulty;
+
+    get_random_prompt(forge_file, line, sizeof(line), &difficulty);
+
     char prompt[512];
     char type_line[512];
+    char difficulty_line[512];
     snprintf(prompt, sizeof(prompt), "PROMPT: %s", line);
     snprintf(type_line, sizeof(type_line), "TYPE: %s", type);
-    free(line);
+    snprintf(difficulty_line, sizeof(difficulty_line), "DIFFICULTY (1 - 3): %d", difficulty);
+
 
     const char *lines[] = {
         "==============",
         prompt,
         type_line,
+        difficulty_line,
         "==============",
         "",
         ""
@@ -82,14 +90,29 @@ void forge(void) {
     char command[512];
     snprintf(command, sizeof(command), "%s %s", EDITOR, archive_path);
     system(command);
-    printf("Running add_forge_count()\n");
     add_forge_count();
-    printf("Finished add_forge_count()\n");
     int streak = update_streak();
-    int total_xp = add_xp(20);
+    
 
     printf("Forge complete!\n\n");
-    printf("+20 XP (forge)\n\n");
+    printf("+20 XP (forge)\n");
+
+    if (difficulty == 1) {
+        printf("+0 XP (Easy difficulty)");
+    } else if (difficulty == 2)
+    {
+        printf("+10 XP (Medium difficulty)");
+        add_xp(10);
+    } else if (difficulty == 3)
+    {
+        printf("+20 XP (Hard difficulty)");
+        add_xp(20);
+    }
+    
+
+    int total_xp = add_xp(20);
+
+    printf("\n");
     printf("Total gained: 20 XP\n");
     printf("Current streak: %d\n", streak);
     printf("Total XP: %d\n", total_xp);

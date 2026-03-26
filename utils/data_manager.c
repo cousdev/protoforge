@@ -49,7 +49,6 @@ int get_forge_count(void) {
 
 void add_forge_count(void) {
     int current_forge_count = get_forge_count();
-    printf("Received forge count");
     int new_forge_count = current_forge_count + 1;
 
     cJSON *config = read_config();
