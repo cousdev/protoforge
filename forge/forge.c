@@ -30,6 +30,10 @@ void forge(void) {
     scanf("%d", &selected_type);
     selected_type--;
 
+    // Flush leftover \n from scanf
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+
     // Check the option is valid.
     if (selected_type < 0 || selected_type >= count) {
         fprintf(stderr, "Invalid selection, please pick a number between 1 and %d.\n", count);
@@ -50,20 +54,35 @@ void forge(void) {
     int difficulty;
 
     get_random_prompt(forge_file, line, sizeof(line), &difficulty);
+    
+    // Ask the user what they would like to title their work.
+    char title[256];
+    printf("Enter a title: ");
+    fgets(title, sizeof(title), stdin);
+
+    // Strip new line
+    title[strcspn(title, "\n")] = '\0';
 
     char prompt[512];
     char type_line[512];
     char difficulty_line[512];
+    char title_line[512];
     snprintf(prompt, sizeof(prompt), "PROMPT: %s", line);
     snprintf(type_line, sizeof(type_line), "TYPE: %s", type);
     snprintf(difficulty_line, sizeof(difficulty_line), "DIFFICULTY (1 - 3): %d", difficulty);
-
+    snprintf(title_line, sizeof(title_line), "TITLE: %s", title);
 
     const char *lines[] = {
         "==============",
+        title_line,
         prompt,
         type_line,
         difficulty_line,
+        "==============",
+        "",
+        "==============",
+        "PLANNING",
+        "Ideas go here...",
         "==============",
         "",
         ""
@@ -75,10 +94,12 @@ void forge(void) {
     char archive_path[1024];
     time_t unix_datetime;
     unix_datetime = time(NULL);
-    snprintf(archive_path, sizeof(archive_path), "%s/archive/%ld", home, unix_datetime);
+    char file_name[32];
+    snprintf(file_name, sizeof(file_name), "%ld", unix_datetime);
+    snprintf(archive_path, sizeof(archive_path), "%s/archive/%s", home, file_name);
 
     // Create a new file and write the lines
-    create_new_file(archive_path, lines, 6);
+    create_new_file(archive_path, lines, 13);
     
     // Open the editor
     char* EDITOR = getenv("EDITOR");
@@ -90,6 +111,10 @@ void forge(void) {
     char command[512];
     snprintf(command, sizeof(command), "%s %s", EDITOR, archive_path);
     system(command);
+    
+    // Save to archive.json
+    save_to_archive(title, file_name);
+
     add_forge_count();
     int streak = update_streak();
     

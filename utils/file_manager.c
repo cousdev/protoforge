@@ -107,7 +107,7 @@ void create_new_file(const char *PATH, const char** LINES, int count) {
 cJSON* read_json(const char *config_path) {
     FILE *f = fopen(config_path, "r");
     if (f == NULL) {
-        perror("Failed to open the config.json\n");
+        printf("Failed to read file: %s\n", config_path);
         exit(1);
     }
 
@@ -149,20 +149,42 @@ cJSON* read_config(void) {
     return json;
 }
 
+cJSON* read_archive(void) {
+    char home[1024];
+    get_wordforge_home(home, sizeof(home));
+    char archive_path[1024];
+    snprintf(archive_path, sizeof(archive_path), "%s/archive.json", home);
+    cJSON *json = read_json(archive_path);
+    return json;
+}
+
+void write_text(const char *PATH, const char *TEXT) {
+    FILE *f = fopen(PATH, "w");
+    if (f == NULL) {
+        printf("Failed to open file: %s\n", PATH);
+        exit(1);
+    }
+
+    fputs(TEXT, f);
+    fclose(f);
+
+    return;
+}
+
 void write_config(const char *text) {
     char home[1024];
     get_wordforge_home(home, sizeof(home));
     char config_path[1024];
     snprintf(config_path, sizeof(config_path), "%s/config.json", home);
 
-    FILE *f = fopen(config_path, "w");
-    if (f == NULL) {
-        perror("Failed to open the config.json\n");
-        exit(1);
-    }
+    write_text(config_path, text);    
+}
 
-    fputs(text, f);
-    fclose(f);
+void write_archive(const char *text) {
+    char home[1024];
+    get_wordforge_home(home, sizeof(home));
+    char archive_path[1024];
+    snprintf(archive_path, sizeof(archive_path), "%s/archive.json", home);
 
-    return;
+    write_text(archive_path, text);   
 }

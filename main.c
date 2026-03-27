@@ -6,6 +6,7 @@
 #include <refine.h>
 #include <data_manager.h>
 #include <stats.h>
+#include <colour.h>
 
 void show_options(void) {
     printf("Wordforge v1.0 - Created by Marcus Cornes\n");
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]) {
     } else if (strcasecmp(argv[1], "stats") == 0) {
         stats();
     } else {
-        printf("ERROR: Unknown command.\n\n");
+        printf(RED "ERROR: Unknown command.\n\n" RESET);
         show_options();
         return 1;
     }

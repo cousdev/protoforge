@@ -29,3 +29,43 @@ void get_random_prompt(const char *PATH, char *prompt, size_t prompt_size, int *
 
     return;
 }
+
+void get_random_file(char* file, char* name) {
+    cJSON *archive_json = read_archive();
+    cJSON *files = cJSON_GetObjectItemCaseSensitive(archive_json, "archive");
+    if (!cJSON_IsArray(files)) {
+        fprintf(stderr, "Invalid or missing files in archive.json.\n");
+        cJSON_Delete(archive_json);
+        exit(1);
+    }
+
+    int count = cJSON_GetArraySize(files);
+    int index = rand() % count;
+
+    cJSON *selected = cJSON_GetArrayItem(files, index);
+    cJSON *title = cJSON_GetObjectItemCaseSensitive(selected, "name");
+    cJSON *revisions = cJSON_GetObjectItemCaseSensitive(selected, "revisions");
+    
+    int revision_count = cJSON_GetArraySize(revisions);
+    int latest_revision = revision_count - 1;
+
+    cJSON *file_string = cJSON_GetArrayItem(revisions, latest_revision);
+
+    if (file_string != NULL && cJSON_IsString(file_string)) {
+        file = strncpy(file, file_string->valuestring, 32);
+    } else {
+        fprintf(stderr, "An error occured getting a random file.\n");
+        cJSON_Delete(archive_json);
+        exit(1);
+    }
+
+    if (title != NULL && cJSON_IsString(title)) {
+        name = strncpy(name, title->valuestring, 256);
+        cJSON_Delete(archive_json);
+    } else {
+        fprintf(stderr, "An error occured getting the title of a random file.\n");
+        cJSON_Delete(archive_json);
+        exit(1);
+    }
+
+}

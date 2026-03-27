@@ -146,3 +146,50 @@ int update_streak(void) {
 
     return streak;
 }
+
+// Get archive.json
+// Check if a file with the specified human name exists.
+// If not: Create a new one and set the name to HUMAN_NAME, and the revision FILE_NAME.
+// If yes: Find it and append FILE_NAME to the revisions.
+void save_to_archive(const char *HUMAN_NAME, const char *FILE_NAME) {
+    char home[1024];
+    get_wordforge_home(home, sizeof(home));
+    char archive_path[1024];
+    snprintf(archive_path, sizeof(archive_path), "%s/archive.json", home);
+    cJSON *archive_json = read_json(archive_path);
+    cJSON *archive = cJSON_GetObjectItemCaseSensitive(archive_json, "archive");
+
+    // Iterate over each item in the array, search for an existing item.
+    cJSON *entry = NULL;
+    cJSON *item = NULL;
+
+    cJSON_ArrayForEach(item, archive) {
+        cJSON *name = cJSON_GetObjectItemCaseSensitive(item, "name");
+        if (cJSON_IsString(name) && strcmp(name->valuestring, HUMAN_NAME) == 0) {
+            entry = item;
+            break;
+        }
+    }
+
+    if (entry == NULL) {
+        // Create a new entry
+        entry = cJSON_CreateObject();
+        cJSON_AddStringToObject(entry, "name", HUMAN_NAME);
+
+        cJSON *revisions = cJSON_CreateArray();
+        cJSON_AddItemToArray(revisions, cJSON_CreateString(FILE_NAME));
+        cJSON_AddItemToObject(entry, "revisions", revisions);
+
+        cJSON_AddItemToArray(archive, entry);
+    } else {
+        // Append to the existing revisions
+        cJSON *revisions = cJSON_GetObjectItemCaseSensitive(entry, "revisions");
+        cJSON_AddItemToArray(revisions, cJSON_CreateString(FILE_NAME));
+    }
+
+    // Write back
+    char *json_str = cJSON_Print(archive_json);
+    write_archive(json_str);
+    cJSON_free(json_str);
+    cJSON_Delete(archive_json);
+}

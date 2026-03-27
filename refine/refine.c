@@ -3,12 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <data_manager.h>
+#include <prompt_manager.h>
+#include <time.h>
 
 
-// Get all files in the archive folder
-// Choose a random file from the folder
+
+// Read the archive.json
+// Choose a random file
+// Get the latest file revision
 // Open it.
-
 void refine() {
     char home[1024];
     get_wordforge_home(home, sizeof(home));
@@ -16,20 +19,49 @@ void refine() {
     char archive_path[1024];
     snprintf(archive_path, sizeof(archive_path), "%s/archive", home);
 
-    int count = 0;
-    char** files = get_files_from_folder(archive_path, &count);
-
-    int n = 0;
-    char *chosen_file = NULL;
-    for (int i = 0; i < count; i++) {
-        n++;
-        if(rand() % n == 0) {
-            chosen_file = files[i];
-        }
-    }
+    char chosen_file[32];
+    char title[256];
+    get_random_file(chosen_file, title);
 
     char file_path[1024];
     snprintf(file_path, sizeof(file_path), "%s/%s", archive_path, chosen_file);
+
+    // Read the file from file_path, copy it with a new unix timestamp, open it.
+    FILE *source = fopen(file_path, "r");
+    if (source == NULL) {
+        printf("Cannot open file %s\n", file_path);
+        exit(1);
+    }
+
+    // Read entire file into memory
+    fseek(source, 0, SEEK_END);
+    long size = ftell(source);
+    fseek(source, 0, SEEK_SET);
+
+    char *buffer = malloc(size + 1);
+    if (!buffer) {
+        fclose(source);
+        printf("Memory allocation failed\n");
+        return;
+    }
+
+    fread(buffer, 1, size, source);
+    buffer[size] = '\0';
+    fclose(source);
+
+    // Create new filename using Unix timestamp
+    time_t now = time(NULL);
+    char new_name[64];
+    snprintf(new_name, sizeof(new_name), "%ld", now);
+
+    // Build full path for new file
+    char new_path[1024];
+    snprintf(new_path, sizeof(new_path), "%s/%s", archive_path, new_name);
+
+    // Write copied text to new file
+    write_text(new_path, buffer);
+
+    free(buffer);
 
     // Open the editor
     char* EDITOR = getenv("EDITOR");
@@ -39,8 +71,9 @@ void refine() {
     }
 
     char command[512];
-    snprintf(command, sizeof(command), "%s %s", EDITOR, file_path);
+    snprintf(command, sizeof(command), "%s %s", EDITOR, new_path);
     system(command);
+    save_to_archive(title, new_name);
     add_refine_count();
     int streak = update_streak();
     int total_xp = add_xp(25);
