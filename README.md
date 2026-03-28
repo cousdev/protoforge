@@ -22,5 +22,5 @@ Protoforge will require a home directory to run. Use the included `wordforge.zip
 
 ```bash
 mv wordforge.zip ~
-unzip ~/wordforge.zip -d ~/wordforge
+unzip ~/wordforge.zip -d ~/
 ```
