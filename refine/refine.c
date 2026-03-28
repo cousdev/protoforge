@@ -6,30 +6,11 @@
 #include <prompt_manager.h>
 #include <time.h>
 
-
-
-// Read the archive.json
-// Choose a random file
-// Get the latest file revision
-// Open it.
-void refine() {
-    char home[1024];
-    get_wordforge_home(home, sizeof(home));
-
-    char archive_path[1024];
-    snprintf(archive_path, sizeof(archive_path), "%s/archive", home);
-
-    char chosen_file[32];
-    char title[256];
-    get_random_file(chosen_file, title);
-
-    char file_path[1024];
-    snprintf(file_path, sizeof(file_path), "%s/%s", archive_path, chosen_file);
-
+void create_new_revision(const char *PATH, const char *title, const char *archive_path) {
     // Read the file from file_path, copy it with a new unix timestamp, open it.
-    FILE *source = fopen(file_path, "r");
+    FILE *source = fopen(PATH, "r");
     if (source == NULL) {
-        printf("Cannot open file %s\n", file_path);
+        printf("Cannot open file %s\n", PATH);
         exit(1);
     }
 
@@ -84,4 +65,25 @@ void refine() {
     printf("Current streak: %d\n", streak);
     printf("Total XP: %d\n", total_xp);
     return;
+}
+
+// Read the archive.json
+// Choose a random file
+// Get the latest file revision
+// Open it.
+void refine() {
+    char home[1024];
+    get_wordforge_home(home, sizeof(home));
+
+    char archive_path[1024];
+    snprintf(archive_path, sizeof(archive_path), "%s/archive", home);
+
+    char chosen_file[32];
+    char title[256];
+    get_random_file(chosen_file, title);
+
+    char file_path[1024];
+    snprintf(file_path, sizeof(file_path), "%s/%s", archive_path, chosen_file);
+
+    create_new_revision(file_path, title, archive_path);
 }

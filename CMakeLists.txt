@@ -10,5 +10,6 @@ add_executable(wordforge
     refine/refine.c
     cjson/cJSON.c
     stats/stats.c
+    archive/archive.c
 )
 target_include_directories(wordforge PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
