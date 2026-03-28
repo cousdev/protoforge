@@ -4,6 +4,9 @@ Protoforge is a prototype of wordforge, a program designed to make revising for 
 > [!WARNING]
 > Protoforge will not be actively maintained. Please use the wordforge GUI app.
 
+## Compatibility
+Protoforge is not compatible with Windows. If you wish to use protoforge on Windows, please use WSL. Protoforge supports any POSIX system (MacOS, Linux, BSD, etc).
+
 ## Build Instructions
 Protoforge uses the CMake build system.
 
@@ -19,5 +22,5 @@ Protoforge will require a home directory to run. Use the included `wordforge.zip
 
 ```bash
 mv wordforge.zip ~
-unzip ~/wordforge.zip
+unzip ~/wordforge.zip -d ~/wordforge
 ```
